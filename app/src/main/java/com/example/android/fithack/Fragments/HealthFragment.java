@@ -1,9 +1,11 @@
 package com.example.android.fithack.Fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +13,14 @@ import android.widget.GridView;
 
 import com.example.android.fithack.Articles;
 import com.example.android.fithack.ArticlesAdapter;
+import com.example.android.fithack.DownloadImageTask;
 import com.example.android.fithack.R;
+import com.example.android.fithack.RetrieveHeadersTask;
+import com.example.android.fithack.RetrieveImagesSrcTask;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -34,7 +41,13 @@ public class HealthFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private String URL_TO_PARSE = "http://fithacker.ru/health/";
     private OnFragmentInteractionListener mListener;
+    private ArrayList<Articles> articles = new ArrayList<>();
+    private ArrayList<String> articleHeaders;
+    private ArrayList<String> imageSrcs;
+    private ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    private Bitmap bitmap;
 
     public HealthFragment() {
         // Required empty public constructor
@@ -61,6 +74,39 @@ public class HealthFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Parsing article headers and image src
+
+        try {
+            articleHeaders = new RetrieveHeadersTask().execute(URL_TO_PARSE).get();
+            imageSrcs = new RetrieveImagesSrcTask().execute(URL_TO_PARSE).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        //Downloading and adding bitmaps to array via parsed src's
+
+        for (int i = 0; i < articleHeaders.size() - 1;i++){
+            try {
+                bitmap = new DownloadImageTask().execute(imageSrcs.get(i)).get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            bitmaps.add(bitmap);
+        }
+        Log.w("bitmapssize", String.valueOf(bitmaps.size()));
+        Log.w("bitmapsEx", String.valueOf(bitmaps.get(1)));
+        Log.w("bitmapsEx", String.valueOf(bitmaps.get(2)));
+
+        Log.w("thus2", String.valueOf(articleHeaders.size()));
+        Log.w("articlesheaders", String.valueOf(articleHeaders.size()));
+        Log.w("imgsheaders", String.valueOf(imageSrcs.size()));
+        Log.w("example", String.valueOf(imageSrcs.get(2)));
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -71,19 +117,20 @@ public class HealthFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.article_list,container,false);
 
-        // Adding some items to array
-        ArrayList<Articles> articles = new ArrayList<>();
+        View rootView = inflater.inflate(R.layout.article_list, container, false);
 
-        articles.add(new Articles(R.drawable.oppo,"One"));
-        articles.add(new Articles(R.drawable.oppo,"Two"));
-        articles.add(new Articles(R.drawable.oppo,"Three"));
-        articles.add(new Articles(R.drawable.oppo,"Four"));
+        // Adding some items to array via iterator
+
+        Iterator<Bitmap> iteratorImges = bitmaps.iterator();
+        Iterator<String> iteratorHeaders = articleHeaders.iterator();
+        while (iteratorImges.hasNext()) {
+            articles.add(new Articles(iteratorImges.next(), iteratorHeaders.next()));
+        }
 
         // Create an {@link Article}, whose data source is a list of {@link Article}s. The
         // adapter knows how to create list items for each item in the list.
-        ArticlesAdapter adapter = new ArticlesAdapter(getActivity(), articles,R.color.colorAccent);
+        ArticlesAdapter adapter = new ArticlesAdapter(getActivity(), articles, R.color.colorNews);
 
         // Find the {@link GridView} object in the view hierarchy of the {@link Activity}.
         // There should be a {@link GridView} with the view ID called list, which is declared in the
@@ -103,6 +150,7 @@ public class HealthFragment extends Fragment {
             mListener.onFragmentInteraction(uri);
         }
     }
+
 
     @Override
     public void onDetach() {

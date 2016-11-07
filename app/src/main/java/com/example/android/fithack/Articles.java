@@ -1,15 +1,17 @@
 package com.example.android.fithack;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by nexus on 28.10.2016.
  */
 public class Articles {
 
-    int imageId = -1;
+    Bitmap bitmap;
     String text = "";
 
-    public Articles(int imageId, String text){
-        this.imageId = imageId;
+    public Articles(Bitmap imageId, String text){
+        this.bitmap = imageId;
         this.text = text;
     }
 
@@ -17,8 +19,8 @@ public class Articles {
         return text;
     }
 
-    public int getImageId(){
-        return imageId;
+    public Bitmap getBitmap(){
+        return bitmap;
     }
 
 }

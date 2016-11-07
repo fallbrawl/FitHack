@@ -19,6 +19,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:id="@+id/main_activity"
+    android:background="@color/colorNews"
     tools:context="com.example.android.fithack.MainActivity">
 
     <android.support.design.widget.TabLayout

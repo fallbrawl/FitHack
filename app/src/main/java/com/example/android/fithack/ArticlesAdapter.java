@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,18 +39,18 @@ public class ArticlesAdapter extends ArrayAdapter<Articles> {
         Articles currentArticle = getItem(position);
 
         // Find the TextView in the article_item.xml layout with the ID version_name
-        TextView miwokTextView = (TextView) gridItemView.findViewById(R.id.article_item_text_row);
+        TextView articleTextView = (TextView) gridItemView.findViewById(R.id.article_item_text_row);
 
         // Get the miwok translation from the current Word object and
         // set this text on the name TextView
-        miwokTextView.setText(currentArticle.getText());
+        articleTextView.setText(currentArticle.getText());
 
 
         // Setting background color
         // TODO:uncomment when fragments ready
 
-        //LinearLayout texts = (LinearLayout) gridItemView.findViewById(R.id.bothTexts);
-        //texts.setBackgroundColor(colorId);
+//        LinearLayout texts = (LinearLayout) gridItemView.findViewById(R.id.gridList);
+//        texts.setBackgroundColor(colorId);
 
         // Find the ImageView in the list_item.xml layout with the ID list_item_icon
         ImageView iconView = (ImageView) gridItemView.findViewById(R.id.article_item_pic);
@@ -56,7 +58,7 @@ public class ArticlesAdapter extends ArrayAdapter<Articles> {
         // Get the image resource ID from the current Article object and
         // set the image to iconView
 
-        iconView.setImageResource(currentArticle.getImageId());
+        iconView.setImageBitmap(currentArticle.getBitmap());
         iconView.setVisibility(View.VISIBLE);
 
         // Return the whole list item layout (containing 2 TextViews and an ImageView)

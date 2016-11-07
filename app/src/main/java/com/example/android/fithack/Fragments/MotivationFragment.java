@@ -1,9 +1,10 @@
 package com.example.android.fithack.Fragments;
 
-import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +12,18 @@ import android.widget.GridView;
 
 import com.example.android.fithack.Articles;
 import com.example.android.fithack.ArticlesAdapter;
+import com.example.android.fithack.DownloadImageTask;
 import com.example.android.fithack.R;
+import com.example.android.fithack.RetrieveHeadersTask;
+import com.example.android.fithack.RetrieveImagesSrcTask;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
 
 
 /**
+ * http://fithacker.ru/motivation/
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link MotivationFragment.OnFragmentInteractionListener} interface
@@ -34,7 +41,13 @@ public class MotivationFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private String URL_TO_PARSE = "http://fithacker.ru/motivation/";
     private OnFragmentInteractionListener mListener;
+    private ArrayList<Articles> articles = new ArrayList<>();
+    private ArrayList<String> articleHeaders;
+    private ArrayList<String> imageSrcs;
+    private ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    private Bitmap bitmap;
 
     public MotivationFragment() {
         // Required empty public constructor
@@ -46,7 +59,7 @@ public class MotivationFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment MotivationFragment.
+     * @return A new instance of fragment NewsFragment.
      */
     // TODO: Rename and change types and number of parameters
     public static MotivationFragment newInstance(String param1, String param2) {
@@ -61,6 +74,39 @@ public class MotivationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Parsing article headers and image src
+
+        try {
+            articleHeaders = new RetrieveHeadersTask().execute(URL_TO_PARSE).get();
+            imageSrcs = new RetrieveImagesSrcTask().execute(URL_TO_PARSE).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        //Downloading and adding bitmaps to array via parsed src's
+
+        for (int i = 0; i < articleHeaders.size() - 1;i++){
+            try {
+                bitmap = new DownloadImageTask().execute(imageSrcs.get(i)).get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            bitmaps.add(bitmap);
+        }
+        Log.w("bitmapssize", String.valueOf(bitmaps.size()));
+        Log.w("bitmapsEx", String.valueOf(bitmaps.get(1)));
+        Log.w("bitmapsEx", String.valueOf(bitmaps.get(2)));
+
+        Log.w("thus2", String.valueOf(articleHeaders.size()));
+        Log.w("articlesheaders", String.valueOf(articleHeaders.size()));
+        Log.w("imgsheaders", String.valueOf(imageSrcs.size()));
+        Log.w("example", String.valueOf(imageSrcs.get(2)));
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -72,20 +118,19 @@ public class MotivationFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.article_list,container,false);
+        View rootView = inflater.inflate(R.layout.article_list, container, false);
 
-        // Adding some items to array
-        ArrayList<Articles> articles = new ArrayList<>();
+        // Adding some items to array via iterator
 
-        articles.add(new Articles(R.drawable.oppo,"One"));
-        articles.add(new Articles(R.drawable.oppo,"Two"));
-        articles.add(new Articles(R.drawable.oppo,"Three"));
-        articles.add(new Articles(R.drawable.oppo,"Four"));
+        Iterator<Bitmap> iteratorImges = bitmaps.iterator();
+        Iterator<String> iteratorHeaders = articleHeaders.iterator();
+        while (iteratorImges.hasNext()) {
+            articles.add(new Articles(iteratorImges.next(), iteratorHeaders.next()));
+        }
 
         // Create an {@link Article}, whose data source is a list of {@link Article}s. The
         // adapter knows how to create list items for each item in the list.
-        ArticlesAdapter adapter = new ArticlesAdapter(getActivity(), articles,R.color.colorAccent);
+        ArticlesAdapter adapter = new ArticlesAdapter(getActivity(), articles, R.color.colorNews);
 
         // Find the {@link GridView} object in the view hierarchy of the {@link Activity}.
         // There should be a {@link GridView} with the view ID called list, which is declared in the
@@ -105,6 +150,7 @@ public class MotivationFragment extends Fragment {
             mListener.onFragmentInteraction(uri);
         }
     }
+
 
     @Override
     public void onDetach() {

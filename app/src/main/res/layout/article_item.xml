@@ -7,11 +7,13 @@
     <TextView
         android:id="@+id/article_item_text_row"
         tools:text="luffi sddfsdfkjlsdklfjs  fjsdfk djfklsdfjklsdklfjklfdsjklfsdf dsfsdf sdfsdfsd sdfsdfsdfsdfsd"
+        android:background="@drawable/layout_bg"
         style="@style/item_textview"/>
 
     <ImageView
         android:id="@+id/article_item_pic"
         style="@style/item_imageview"
+
         />
 
 </LinearLayout>
