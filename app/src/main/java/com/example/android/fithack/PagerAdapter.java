@@ -9,34 +9,29 @@ import com.example.android.fithack.Fragments.HealthFragment;
 import com.example.android.fithack.Fragments.MotivationFragment;
 import com.example.android.fithack.Fragments.NewsFragment;
 
+import java.util.ArrayList;
+
 /**
  * Created by nexus on 27.10.2016.
  */
 public class PagerAdapter extends FragmentPagerAdapter {
 
     private String tabTitles[] = new String[] { "News", "Health", "Motivation", "Exercise" };
+    private ArrayList<Fragment> fragments;
 
-    public PagerAdapter(FragmentManager fm) {
+    public PagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments) {
         super(fm);
+        this.fragments=fragments;
     }
 
     @Override
     public Fragment getItem(int position) {
-        if (position == 0) {
-            return new NewsFragment();
-        } else if (position == 1) {
-            return new HealthFragment();
-        }
-        else if (position == 2){
-            return new MotivationFragment();
-        } else {
-            return new ExerciseFragment();
-        }
+        return fragments.get(position);
     }
 
     @Override
     public int getCount() {
-        return 4;
+        return fragments.size();
     }
 
     @Override

@@ -1,12 +1,21 @@
 package com.example.android.fithack;
-import com.example.android.fithack.Fragments.*;
+import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
+    private ArrayList<Fragment> fragments = new ArrayList<>();
+
+    private Fragment news;
+    private Fragment motivation;
+    private Fragment health;
+    private Fragment exercises;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,8 +26,14 @@ public class MainActivity extends AppCompatActivity {
         // Find the view pager that will allow the user to swipe between fragments
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
 
+        fragments.add(news);
+        fragments.add(motivation);
+        fragments.add(health);
+        fragments.add(exercises);
+
+
         // Create an adapter that knows which fragment should be shown on each page
-        PagerAdapter adapter = new com.example.android.fithack.PagerAdapter(getSupportFragmentManager());
+        PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(), fragments);
 
         // Set the adapter onto the view pager
         viewPager.setAdapter(adapter);
@@ -26,5 +41,8 @@ public class MainActivity extends AppCompatActivity {
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+
     }
+
 }
